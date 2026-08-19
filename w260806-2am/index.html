@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>letter</title>
+<script>
+(function(){try{
+if(!('IntersectionObserver' in window))return;
+var io=new IntersectionObserver(function(es){
+  var v=es[0]&&es[0].isIntersecting;
+  document.documentElement.classList.toggle('mk-off',!v);
+},{threshold:0});
+io.observe(document.documentElement);
+}catch(e){}})();
+</script>
+<style>
+.mk-off *{animation-play-state:paused !important}
+html,body{height:100%;margin:0;padding:0;overflow:hidden;background:transparent}
+body{display:flex;justify-content:center;align-items:center;-webkit-tap-highlight-color:transparent}
+.ltxt{position:absolute;top:0;left:0;width:100%;height:100%;box-sizing:border-box;padding:10% 9%;white-space:pre-wrap;overflow:hidden;text-align:center;font-family:'Malgun Gothic',sans-serif;font-size:17px;line-height:1.85;color:#4a3f35}
+body{align-items:flex-end;padding-bottom:6vh;box-sizing:border-box}
+.stage{perspective:1300px}
+@media (prefers-reduced-motion: no-preference){
+.stage{animation:bob 6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+}
+.env{position:relative;width:min(440px, 92vw, 84vh);aspect-ratio:10/7;cursor:pointer;touch-action:manipulation;perspective:1300px;-webkit-tap-highlight-color:transparent}
+.body{position:absolute;top:0;left:0;width:100%;height:100%;background:#f2e3cf;border-radius:10px;box-shadow:0 16px 34px rgba(0,0,0,.28);z-index:1}
+.paper{position:absolute;left:7%;width:86%;top:5%;height:88%;box-sizing:border-box;z-index:2;background:#fff;padding:2.5%;box-shadow:0 6px 18px rgba(0,0,0,.18);will-change:transform;transition:transform .85s cubic-bezier(.25,.8,.3,1)}
+.pwrap{width:100%;height:100%;overflow:hidden}
+.pwrap img{width:100%;height:100%;object-fit:cover;display:block}
+.env.up .paper{transform:translateY(-72%)}
+.env.front .paper{transform:translateY(-72%) scale(1.12);z-index:6}
+.pocket{position:absolute;top:0;left:0;width:100%;height:100%;z-index:3;background:linear-gradient(180deg,#dccfbc,#f2e3cf);border-radius:10px;clip-path:polygon(0 0,50% 50%,100% 0,100% 100%,0 100%)}
+.flap{position:absolute;top:0;left:0;width:100%;height:56%;z-index:4;background:#c9bcac;clip-path:polygon(0 0,100% 0,50% 96%);transform-origin:top center;will-change:transform;transition:transform .7s cubic-bezier(.3,.7,.3,1);border-radius:10px 10px 0 0}
+.env.open .flap{transform:rotateX(-178deg)}
+.env.up .flap{z-index:1}
+.seal{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:21%;z-index:5;aspect-ratio:1;border-radius:50%;overflow:hidden;transition:transform .35s ease .6s,opacity .35s ease .6s;will-change:transform,opacity;pointer-events:none}
+.seal .sd{width:100%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 38% 34%,#e2596d,#a72a40 68%,#8c1f33);box-shadow:0 3px 10px rgba(0,0,0,.3), inset 0 0 0 5px rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#f6d9de;font:700 22px serif}
+.env.open .seal{opacity:0;transform:translate(-50%,-50%) scale(1.35);transition:transform .35s ease,opacity .35s ease}
+</style>
+<style>.mk-key-focus:focus-visible{outline:3px solid #ffd66b!important;outline-offset:4px!important}</style>
+</head>
+<body>
+<div class="stage"><div class="env" id="env">
+  <div class="body"></div>
+  <div class="paper"><div class="pwrap" data-mk-adjust-box="paper"><img src="./1.webp" alt=""></div></div>
+  <div class="pocket"></div>
+  <div class="flap"></div>
+  <div class="seal" data-mk-adjust-box="seal"><div class="sd">♥</div></div>
+</div></div>
+<script>
+(function(){
+function sparks(host,n){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  var colors=["#ffd97a","#ffe9b0","#ffc65c","#fff3d6"];
+  for(var i=0;i<n;i++){
+    var s=document.createElement("span");
+    s.textContent=Math.random()<.55?"\u2726":"\u25CF";
+    s.style.cssText="position:absolute;left:50%;top:50%;z-index:40;pointer-events:none;"
+      +"font:700 "+(9+Math.random()*13)+"px sans-serif;color:"+colors[i%4]+";"
+      +"text-shadow:0 0 6px rgba(255,215,130,.8);transform:translate(-50%,-50%);will-change:transform,opacity";
+    host.appendChild(s);
+    var a=Math.random()*Math.PI*2,d=80+Math.random()*150;
+    var dx=Math.cos(a)*d,dy=Math.sin(a)*d-30;
+    s.animate([
+      {transform:"translate(-50%,-50%) scale(.4) rotate(0deg)",opacity:1},
+      {transform:"translate(calc(-50% + "+dx+"px), calc(-50% + "+dy+"px)) scale(1.15) rotate("+(Math.random()*260-130)+"deg)",opacity:0}
+    ],{duration:650+Math.random()*400,easing:"cubic-bezier(.15,.75,.4,1)"})
+    .onfinish=(function(el){return function(){el.remove();};})(s);
+  }
+}
+var env=document.getElementById('env'),state=0;
+document.body.addEventListener('click',function(e){if(e.target===document.body)env.click();});
+env.addEventListener('click',function(){
+  if(state===1||state===3)return;
+  if(state===2){
+    state=3;env.classList.remove('front');
+    setTimeout(function(){env.classList.remove('up');},120);
+    setTimeout(function(){env.classList.remove('open');},620);
+    setTimeout(function(){state=0;},1750);
+    return;
+  }
+  state=1;env.classList.add('open');
+  setTimeout(function(){env.classList.add('up');sparks(env,12);},430);
+  setTimeout(function(){env.classList.add('front');},950);
+  setTimeout(function(){state=2;},1450);
+});
+})();
+</script>
+<script>
+(function(){
+var nodes=[].slice.call(document.querySelectorAll("#env"));
+nodes.forEach(function(el){el.tabIndex=0;el.setAttribute("role","button");el.setAttribute("aria-label","편지봉투 열기 또는 닫기");el.classList.add("mk-key-focus");
+el.addEventListener("keydown",function(e){if(e.key!=="Enter"&&e.key!==" ")return;e.preventDefault();el.click();});});
+})();
+</script>
+</body>
+</html>
